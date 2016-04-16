@@ -12,6 +12,10 @@
     "test-src": "mocha src/__tests__/*.js src/**/__tests__/*.js"
   },
   "dependencies": {},
+  "peerDependencies": {
+    "draft-js": "^0.4.0",
+    "immutable": "^3.7.4"
+  },
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.6",
