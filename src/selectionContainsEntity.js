@@ -36,7 +36,8 @@ export default (strategy) => (editorState, selection) => {
         }
 
         entityFound = true;
-      }
+      },
+      contentState,
     );
   });
 

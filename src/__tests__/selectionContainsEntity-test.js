@@ -1,41 +1,44 @@
-/* @flow */
+// @flow
 const {describe, it} = global;
 import expect from 'expect';
 import selectionContainsEntity from '../selectionContainsEntity';
-import {EditorState, Entity, Modifier, SelectionState} from 'draft-js';
+import {EditorState, Modifier, SelectionState} from 'draft-js';
 
 const DUMMY_ENTITY = 'DUMMY_ENTITY';
 
-const findEntity = (character) => {
-  const entityKey = character.getEntity();
-  return (
-    entityKey !== null &&
-    Entity.get(entityKey).getType() === 'DUMMY_ENTITY'
-  );
+const strategy = (contentBlock, callback, contentState) => {
+
+  contentBlock.findEntityRanges((character) => {
+    const entityKey = character.getEntity();
+    return (
+      entityKey != null &&
+      contentState.getEntity(entityKey).getType() === 'DUMMY_ENTITY'
+    );
+  }, callback);
 };
 
-const strategy = (contentBlock, callback) => {
-  contentBlock.findEntityRanges(findEntity, callback);
-};
-
-const insertDummyText = (editorState, text, withEntity) => (
-  EditorState.push(
+const insertDummyText = (editorState, text, withEntity) => {
+  let contentState = editorState.getCurrentContent();
+  let entityKey;
+  if (withEntity) {
+    contentState = contentState.createEntity(
+      DUMMY_ENTITY,
+      'MUTABLE',
+    );
+    entityKey = contentState.getLastCreatedEntityKey();
+  }
+  return EditorState.push(
     editorState,
     Modifier.insertText(
-      editorState.getCurrentContent(),
+      contentState,
       editorState.getSelection(),
       text ? text : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit',
       undefined,
-      withEntity ? (
-        Entity.create(
-          DUMMY_ENTITY,
-          'MUTABLE',
-        )
-      ) : undefined
+      entityKey,
     ),
     'insert-characters',
-  )
-);
+  );
+};
 
 let editorState = insertDummyText(EditorState.createEmpty());
 editorState = EditorState.push(
